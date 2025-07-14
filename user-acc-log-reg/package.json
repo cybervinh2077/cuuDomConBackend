@@ -1,0 +1,18 @@
+{
+  "name": "user-acc-log-reg",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "googleapis": "^133.0.0",
+    "multer": "^2.0.1",
+    "sharp": "^0.34.2",
+    "socket.io": "^4.8.1"
+  }
+}

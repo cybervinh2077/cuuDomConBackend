@@ -1,0 +1,78 @@
+[
+  {
+    "type": "OFFER",
+    "title": "Flydigi apex 4",
+    "skills": [
+      "Design"
+    ],
+    "price": "250",
+    "description": "Test test test",
+    "proofs": [
+      "1752141013112_o3u9ze.jpg"
+    ],
+    "author": {
+      "username": "vinh7"
+    },
+    "createdAt": 1752141016419,
+    "rating": 0,
+    "reactions": "NONE",
+    "id": "1752141013136_yut2cw"
+  },
+  {
+    "type": "HIRE",
+    "title": "test3",
+    "skills": [
+      "Coding"
+    ],
+    "price": "250",
+    "description": "test",
+    "proofs": [
+      "1752123191787_0514rz.jpg"
+    ],
+    "author": {
+      "username": "bruisevinh2077"
+    },
+    "createdAt": 1752123191791,
+    "rating": 0,
+    "reactions": "NONE",
+    "id": "1752123191796_ix567v"
+  },
+  {
+    "type": "OFFER",
+    "title": "Flydigi Vader 4 Pro",
+    "skills": [
+      "Design"
+    ],
+    "price": "250",
+    "description": "test",
+    "proofs": [
+      "1752122991832_98gk73.png"
+    ],
+    "author": {
+      "username": "Vinh3"
+    },
+    "createdAt": 1752122995309,
+    "rating": 0,
+    "reactions": "NONE",
+    "id": "1752122992187_d7h4uw"
+  },
+  {
+    "type": "HIRE",
+    "title": "test",
+    "skills": [
+      "Coding"
+    ],
+    "price": "300",
+    "description": "test",
+    "proofs": [
+      "1752121346023_y1d1z7.jpg"
+    ],
+    "author": {
+      "username": "bruisevinh2077"
+    },
+    "createdAt": 1752121346029,
+    "rating": 0,
+    "reactions": "NONE",
+    "id": "1752121346043_9b7b3x"
+  }
+]
