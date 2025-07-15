@@ -44,25 +44,337 @@ node index.js
 
 Server sẽ chạy tại: `http://<HOST>:<PORT>`
 
-## API cơ bản
-- `POST /register`  `{ username, password }` — Đăng ký tài khoản
-- `POST /login`     `{ username, password }` — Đăng nhập
-- `POST /upload-avatar` — Upload avatar (multipart/form-data)
-- `GET /get-profile?username=...` — Lấy profile user
-- `POST /update-profile` — Cập nhật profile
-- `POST /friend-request` — Gửi yêu cầu kết bạn
-- `GET /friend-requests?username=...` — Lấy danh sách yêu cầu kết bạn
-- `POST /friend-request/respond` — Đồng ý/từ chối kết bạn
-- `GET /friends?username=...` — Lấy danh sách bạn bè
-- `POST /remove-friend` — Xóa bạn bè
-- `GET /notifications?username=...` — Lấy thông báo
-- `POST /messages` — Gửi tin nhắn
-- `GET /messages?user1=...&user2=...` — Lấy lịch sử chat
-- `POST /upload-chat-image` — Upload ảnh chat
-- `POST /posts` — Tạo bài đăng
-- `GET /posts` — Lấy danh sách bài đăng
-- `DELETE /posts/:id` — Xóa bài đăng
-- `POST /upload-post-image` — Upload ảnh bài đăng
+---
+
+# HƯỚNG DẪN KIỂM TRA API (GET/POST) VÀ XEM JSON
+
+## 1. Xem JSON trên web (trình duyệt, Postman)
+
+### A. Trình duyệt (GET)
+- Truy cập các endpoint GET, ví dụ:
+  - **Profile user:**  
+    `http://localhost:4000/get-profile?username=yourname`
+  - **Danh sách bài đăng:**  
+    `http://localhost:4000/posts`
+  - **Thông báo:**  
+    `http://localhost:4000/notifications?username=yourname`
+- Kết quả trả về là JSON, bạn sẽ thấy các trường như:
+  ```json
+  {
+    "profile": {
+      "username": "yourname",
+      "email": "abc@gmail.com",
+      "phone": "0123456789",
+      "dob": "2000-01-01",
+      "fullName": "Nguyen Van A",
+      "region": "Hanoi",
+      "avatar": "http://localhost:4000/avatars/yourname.png"
+    }
+  }
+  ```
+
+### B. Postman (GET/POST)
+- **GET:**  
+  - Chọn method GET, nhập URL như trên, nhấn Send.
+- **POST:**  
+  - Chọn method POST, nhập URL (ví dụ: `/register`, `/login`, `/friend-request`, `/messages`, `/posts`...)
+  - Chọn Body > raw > JSON, nhập dữ liệu, ví dụ:
+    ```json
+    {
+      "username": "yourname",
+      "password": "yourpass",
+      "email": "abc@gmail.com",
+      "phone": "0123456789"
+    }
+    ```
+  - Nhấn Send, xem kết quả JSON trả về với các trường tương ứng.
+
+## 2. Xem JSON trên CMD (curl, PowerShell)
+
+### A. curl (GET)
+```cmd
+curl "http://localhost:4000/get-profile?username=yourname"
+curl "http://localhost:4000/posts"
+curl "http://localhost:4000/notifications?username=yourname"
+```
+**Kết quả:**  
+Bạn sẽ thấy JSON với các trường như username, email, phone, v.v.
+
+### B. curl (POST)
+```cmd
+curl -X POST http://localhost:4000/register -H "Content-Type: application/json" -d "{\"username\":\"yourname\",\"password\":\"yourpass\",\"email\":\"abc@gmail.com\",\"phone\":\"0123456789\"}"
+```
+**Kết quả:**  
+JSON trả về thông báo hoặc dữ liệu liên quan.
+
+### C. PowerShell (GET)
+```powershell
+Invoke-RestMethod -Uri "http://localhost:4000/get-profile?username=yourname" -Method GET
+```
+
+### D. PowerShell (POST)
+```powershell
+Invoke-RestMethod -Uri "http://localhost:4000/register" -Method POST -ContentType "application/json" -Body '{"username":"yourname","password":"yourpass","email":"abc@gmail.com","phone":"0123456789"}'
+```
+
+## 3. Ví dụ thực tế cho từng trường
+
+- **Lấy profile:**  
+  `curl "http://localhost:4000/get-profile?username=yourname"`
+- **Lấy bài đăng:**  
+  `curl "http://localhost:4000/posts"`
+- **Gửi bài đăng mới:**  
+  ```cmd
+  curl -X POST http://localhost:4000/posts -H "Content-Type: application/json" -d "{\"title\":\"Tuyển designer\",\"author\":{\"username\":\"yourname\"},\"skills\":[\"Design\"],\"price\":1000000,\"description\":\"Thiết kế logo\",\"proofs\":[\"logo1.png\"]}"
+  ```
+- **Gửi tin nhắn (chat):**  
+  ```cmd
+  curl -X POST http://localhost:4000/messages -H "Content-Type: application/json" -d "{\"from\":\"user1\",\"to\":\"user2\",\"text\":\"Hello!\"}"
+  ```
+- **Lấy lịch sử chat giữa 2 user:**  
+  `curl "http://localhost:4000/messages?user1=user1&user2=user2"`
+- **Gửi ảnh chat:**  
+  ```cmd
+  curl -X POST http://localhost:4000/upload-chat-image -F "image=@/duongdan/tenfile.jpg" -F "from=user1"
+  ```
+  (Sau đó lấy link ảnh trả về để gửi kèm trường `image` khi POST /messages)
+
+## 4. Lưu ý
+- Thay `localhost:4000` bằng IP thực tế nếu chạy trên máy khác.
+- Thay các giá trị trường cho phù hợp với dữ liệu bạn muốn kiểm tra.
+- Kết quả trả về luôn là JSON, có thể copy vào [jsonformatter.org](https://jsonformatter.org/) để xem đẹp hơn.
+
+---
+
+# API CHI TIẾT
+
+## 1. Đăng ký/Đăng nhập
+
+### Đăng ký tài khoản
+- **POST** `/register`
+- Body:
+  ```json
+  { "username": "string", "password": "string" }
+  ```
+  - `username`: Tên tài khoản (bắt buộc, duy nhất)
+  - `password`: Mật khẩu (bắt buộc)
+- Response:
+  ```json
+  { "message": "Đăng ký thành công!" }
+  ```
+
+### Đăng nhập
+- **POST** `/login`
+- Body:
+  ```json
+  { "username": "string", "password": "string" }
+  ```
+  - `username`: Tên tài khoản
+  - `password`: Mật khẩu
+- Response:
+  ```json
+  { "message": "Đăng nhập thành công!" }
+  ```
+
+## 2. Quản lý hồ sơ
+
+### Lấy profile user
+- **GET** `/get-profile?username=...`
+  - `username`: Tên tài khoản cần lấy thông tin
+- Response:
+  ```json
+  { "profile": { "username": "...", "email": "...", "phone": "...", "dob": "...", "fullName": "...", "region": "...", "avatar": "..." } }
+  ```
+  - `email`: Email người dùng
+  - `phone`: Số điện thoại
+  - `dob`: Ngày sinh (YYYY-MM-DD)
+  - `fullName`: Họ tên đầy đủ
+  - `region`: Khu vực/sinh sống
+  - `avatar`: Link ảnh đại diện
+
+### Cập nhật profile
+- **POST** `/update-profile`
+- Body:
+  ```json
+  { "username": "string", "email": "string", "phone": "string", "dob": "string", "fullName": "string", "region": "string" }
+  ```
+  - `username`: Tên tài khoản
+  - `email`: Email mới
+  - `phone`: Số điện thoại mới
+  - `dob`: Ngày sinh mới
+  - `fullName`: Họ tên đầy đủ
+  - `region`: Khu vực/sinh sống
+- Response:
+  ```json
+  { "message": "Cập nhật thành công!" }
+  ```
+
+### Upload avatar
+- **POST** `/upload-avatar`
+- FormData:
+  - `avatar`: File ảnh
+  - `username`: Tên tài khoản
+- Response:
+  ```json
+  { "message": "Upload thành công", "url": "..." }
+  ```
+
+## 3. Kết bạn & bạn bè
+
+### Gửi yêu cầu kết bạn
+- **POST** `/friend-request`
+- Body:
+  ```json
+  { "from": "string", "to": "string" }
+  ```
+  - `from`: Username người gửi lời mời
+  - `to`: Username người nhận lời mời
+- Response:
+  ```json
+  { "message": "Đã gửi yêu cầu kết bạn" }
+  ```
+
+### Lấy danh sách yêu cầu kết bạn
+- **GET** `/friend-requests?username=...`
+  - `username`: Tên tài khoản cần xem lời mời
+- Response:
+  ```json
+  { "requests": [ { "from": "...", "to": "...", "status": "pending", "createdAt": 123456789 } ] }
+  ```
+  - `status`: Trạng thái (`pending`, `accepted`, `rejected`)
+  - `createdAt`: Thời gian gửi (timestamp)
+
+### Đồng ý/từ chối kết bạn
+- **POST** `/friend-request/respond`
+- Body:
+  ```json
+  { "from": "string", "to": "string", "accept": true/false }
+  ```
+  - `from`: Username người gửi lời mời
+  - `to`: Username người nhận lời mời
+  - `accept`: true (đồng ý) hoặc false (từ chối)
+- Response:
+  ```json
+  { "message": "Đã đồng ý kết bạn" }
+  ```
+
+### Lấy danh sách bạn bè
+- **GET** `/friends?username=...`
+  - `username`: Tên tài khoản cần xem danh sách bạn bè
+- Response:
+  ```json
+  { "friends": [ ... ] }
+  ```
+
+### Xóa bạn bè
+- **POST** `/remove-friend`
+- Body:
+  ```json
+  { "username": "string", "friend": "string" }
+  ```
+  - `username`: Tên tài khoản
+  - `friend`: Username bạn muốn xóa
+- Response:
+  ```json
+  { "message": "Đã xóa bạn bè" }
+  ```
+
+## 4. Thông báo
+
+### Lấy thông báo của user
+- **GET** `/notifications?username=...`
+  - `username`: Tên tài khoản cần xem thông báo
+- Response:
+  ```json
+  { "notifications": [ { "to": "username", "type": "friend-response", "from": "username", "accept": true, "createdAt": 123456789 } ] }
+  ```
+  - `type`: Loại thông báo (ví dụ: `friend-response`)
+  - `from`: Username người gửi thông báo
+  - `accept`: true/false (nếu là phản hồi kết bạn)
+  - `createdAt`: Thời gian
+
+## 5. Tin nhắn (Chat)
+
+### Gửi tin nhắn
+- **POST** `/messages`
+- Body:
+  ```json
+  { "from": "string", "to": "string", "text": "string", "image": "string (url)" }
+  ```
+  - `from`: Username người gửi
+  - `to`: Username người nhận
+  - `text`: Nội dung tin nhắn (có thể rỗng nếu gửi ảnh)
+  - `image`: Link ảnh (nếu gửi ảnh, có thể rỗng nếu chỉ gửi text)
+- Response:
+  ```json
+  { "message": "Đã gửi", "msg": { "from": "user1", "to": "user2", "text": "Hello!", "image": null, "createdAt": 123456789 } }
+  ```
+
+### Lấy lịch sử chat giữa 2 user
+- **GET** `/messages?user1=...&user2=...`
+  - `user1`, `user2`: 2 tài khoản cần lấy lịch sử chat
+- Response:
+  ```json
+  { "messages": [ { "from": "user1", "to": "user2", "text": "Hello!", "image": null, "createdAt": 123456789 } ] }
+  ```
+  - `createdAt`: Thời gian gửi
+
+### Upload ảnh chat
+- **POST** `/upload-chat-image`
+- FormData:
+  - `image`: File ảnh
+  - `from`: Username người gửi
+- Response:
+  ```json
+  { "message": "Upload thành công", "url": "http://localhost:4000/chat_images/tenfile.jpg" }
+  ```
+
+## 6. Bài đăng
+
+### Tạo bài đăng mới
+- **POST** `/posts`
+- Body:
+  ```json
+  { "title": "string", "author": { "username": "string" }, "skills": ["string"], "price": "number", "description": "string", "proofs": ["filename"], ... }
+  ```
+  - `title`: Tiêu đề bài đăng
+  - `author`: Thông tin người đăng (object, bắt buộc có `username`)
+  - `skills`: Kỹ năng liên quan (array)
+  - `price`: Giá (nếu có)
+  - `description`: Mô tả chi tiết
+  - `proofs`: Danh sách file chứng minh (ảnh, file...)
+- Response:
+  ```json
+  { "message": "Đã tạo bài đăng", "post": { ... } }
+  ```
+
+### Lấy danh sách bài đăng
+- **GET** `/posts`
+- Response:
+  ```json
+  { "posts": [ { "id": "...", "title": "...", "author": { ... }, "skills": [ ... ], "price": ..., "description": "...", "proofs": [ ... ], "createdAt": 123456789, ... } ] }
+  ```
+  - `id`: Mã bài đăng
+  - `createdAt`: Thời gian tạo
+
+### Xóa bài đăng
+- **DELETE** `/posts/:id`
+  - `id`: Mã bài đăng cần xóa (truyền trên URL)
+- Response:
+  ```json
+  { "message": "Đã xóa bài đăng" }
+  ```
+
+### Upload ảnh bài đăng
+- **POST** `/upload-post-image`
+- FormData:
+  - `image`: File ảnh
+- Response:
+  ```json
+  { "message": "Upload thành công", "filename": "..." }
+  ```
+
+---
 
 ## Ghi chú
 - Ảnh avatar, chat, bài đăng được lưu trong các thư mục con (`avatars/`, `chat_images/`, `post_images/`).
@@ -70,4 +382,4 @@ Server sẽ chạy tại: `http://<HOST>:<PORT>`
 - Để dùng trên nhiều máy, hãy đảm bảo HOST là IP trong mạng LAN hoặc 0.0.0.0.
 
 ## License
-MIT 
+MIT .
