@@ -1,0 +1,36 @@
+const express = require('express');
+const { createProxyMiddleware } = require('http-proxy-middleware');
+
+const app = express();
+
+// Proxy cho user-service
+app.use([
+  '/register', '/login', '/reset-password', '/get-profile', '/update-profile', '/upload-avatar',
+  '/friend-request', '/friend-requests', '/friend-request/respond', '/friends', '/remove-friend', '/user', '/avatars', '/notifications'
+],
+  createProxyMiddleware({ target: 'http://localhost:4001', changeOrigin: true })
+);
+
+// Proxy cho post-service
+app.use(['/posts', '/upload-post-image', '/post_images'],
+  createProxyMiddleware({ target: 'http://localhost:4002', changeOrigin: true })
+);
+
+// Proxy cho chat-service
+app.use(['/messages', '/upload-chat-image', '/chat_images', '/socket.io'],
+  createProxyMiddleware({ target: 'http://localhost:4003', changeOrigin: true, ws: true })
+);
+
+// Proxy cho notification-service (notification hệ thống)
+app.use(['/notifications'],
+  createProxyMiddleware({ target: 'http://localhost:4004', changeOrigin: true })
+);
+
+app.get('/', (req, res) => {
+  res.send('API Gateway is running');
+});
+
+const PORT = 4000;
+app.listen(PORT, () => {
+  console.log(`API Gateway running on port ${PORT}`);
+}); 

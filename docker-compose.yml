@@ -1,0 +1,47 @@
+version: '3.8'
+services:
+  user-service:
+    build: ./microservices/user-service
+    ports:
+      - "4001:4001"
+    volumes:
+      - ./microservices/user-service/data:/app/data
+      - ./microservices/user-service/avatars:/app/avatars
+    restart: unless-stopped
+
+  post-service:
+    build: ./microservices/post-service
+    ports:
+      - "4002:4002"
+    volumes:
+      - ./microservices/post-service/data:/app/data
+      - ./microservices/post-service/post_images:/app/post_images
+    restart: unless-stopped
+
+  chat-service:
+    build: ./microservices/chat-service
+    ports:
+      - "4003:4003"
+    volumes:
+      - ./microservices/chat-service/data:/app/data
+      - ./microservices/chat-service/chat_images:/app/chat_images
+    restart: unless-stopped
+
+  notification-service:
+    build: ./microservices/notification-service
+    ports:
+      - "4004:4004"
+    volumes:
+      - ./microservices/notification-service/data:/app/data
+    restart: unless-stopped
+
+  gateway:
+    build: ./microservices/gateway
+    ports:
+      - "4000:4000"
+    depends_on:
+      - user-service
+      - post-service
+      - chat-service
+      - notification-service
+    restart: unless-stopped 

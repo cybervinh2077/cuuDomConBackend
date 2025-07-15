@@ -1,0 +1,38 @@
+[
+  {
+    "from": "vinh7",
+    "to": "cybervinh2077",
+    "status": "pending",
+    "createdAt": 1752065519227
+  },
+  {
+    "from": "bruisevinh2077",
+    "to": "vinh7",
+    "status": "rejected",
+    "createdAt": 1752065584339
+  },
+  {
+    "from": "vinh7",
+    "to": "bruise",
+    "status": "rejected",
+    "createdAt": 1752065843606
+  },
+  {
+    "from": "bruisevinh2077",
+    "to": "bruise",
+    "status": "rejected",
+    "createdAt": 1752065976180
+  },
+  {
+    "from": "bruisevinh2077",
+    "to": "vinh3",
+    "status": "pending",
+    "createdAt": 1752066679661
+  },
+  {
+    "from": "bruisevinh2077",
+    "to": "Vinh3",
+    "status": "accepted",
+    "createdAt": 1752068064506
+  }
+]
