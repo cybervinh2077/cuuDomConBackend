@@ -557,7 +557,7 @@ app.get('/', (req, res) => {
 
 // ==== CẤU HÌNH HOST VÀ PORT DỄ TÙY CHỈNH ====
 const HOST = process.env.HOST || 'localhost'; // hoặc '192.168.2.65' hoặc '0.0.0.0'
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 3001;
 
 const server = http.createServer(app);
 const io = new SocketIOServer(server, { cors: { origin: '*' } });
