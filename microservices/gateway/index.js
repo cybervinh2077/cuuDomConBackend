@@ -8,22 +8,22 @@ app.use([
   '/register', '/login', '/reset-password', '/get-profile', '/update-profile', '/upload-avatar',
   '/friend-request', '/friend-requests', '/friend-request/respond', '/friends', '/remove-friend', '/user', '/avatars', '/notifications'
 ],
-  createProxyMiddleware({ target: 'http://localhost:4001', changeOrigin: true })
+  createProxyMiddleware({ target: 'http://user-service:4001', changeOrigin: true })
 );
 
 // Proxy cho post-service
 app.use(['/posts', '/upload-post-image', '/post_images'],
-  createProxyMiddleware({ target: 'http://localhost:4002', changeOrigin: true })
+  createProxyMiddleware({ target: 'http://post-service:4002', changeOrigin: true })
 );
 
 // Proxy cho chat-service
 app.use(['/messages', '/upload-chat-image', '/chat_images', '/socket.io'],
-  createProxyMiddleware({ target: 'http://localhost:4003', changeOrigin: true, ws: true })
+  createProxyMiddleware({ target: 'http://chat-service:4003', changeOrigin: true, ws: true })
 );
 
 // Proxy cho notification-service (notification hệ thống)
 app.use(['/notifications'],
-  createProxyMiddleware({ target: 'http://localhost:4004', changeOrigin: true })
+  createProxyMiddleware({ target: 'http://notification-service:4004', changeOrigin: true })
 );
 
 app.get('/', (req, res) => {
