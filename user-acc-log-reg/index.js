@@ -223,37 +223,37 @@ app.post('/update-profile', async (req, res) => {
 // Phục vụ file tĩnh avatar
 app.use('/avatars', express.static(AVATAR_DIR));
 
-const FRIEND_REQUESTS_PATH = path.join(__dirname, 'friend_requests.json');
-function loadFriendRequests() {
+const PARTNER_REQUESTS_PATH = path.join(__dirname, 'partner_requests.json');
+function loadPartnerRequests() {
   try {
-    return JSON.parse(readFileSync(FRIEND_REQUESTS_PATH, 'utf8'));
+    return JSON.parse(readFileSync(PARTNER_REQUESTS_PATH, 'utf8'));
   } catch {
     return [];
   }
 }
-function saveFriendRequests(requests) {
-  writeFileSync(FRIEND_REQUESTS_PATH, JSON.stringify(requests, null, 2), 'utf8');
+function savePartnerRequests(requests) {
+  writeFileSync(PARTNER_REQUESTS_PATH, JSON.stringify(requests, null, 2), 'utf8');
 }
 
-// Gửi yêu cầu kết bạn
-app.post('/friend-request', (req, res) => {
+// Gửi yêu cầu kết nối
+app.post('/partner-request', (req, res) => {
   const { from, to } = req.body;
   if (!from || !to) return res.status(400).json({ message: 'Thiếu thông tin' });
-  let requests = loadFriendRequests();
+  let requests = loadPartnerRequests();
   // Không gửi trùng
   if (requests.some(r => r.from === from && r.to === to && r.status === 'pending')) {
     return res.json({ message: 'Đã gửi yêu cầu trước đó' });
   }
   requests.push({ from, to, status: 'pending', createdAt: Date.now() });
-  saveFriendRequests(requests);
-  res.json({ message: 'Đã gửi yêu cầu kết bạn' });
+  savePartnerRequests(requests);
+  res.json({ message: 'Đã gửi yêu cầu kết nối' });
 });
 
-// Lấy danh sách yêu cầu kết bạn gửi đến user
-app.get('/friend-requests', async (req, res) => {
+// Lấy danh sách yêu cầu kết nối gửi đến user
+app.get('/partner-requests', async (req, res) => {
   const { username } = req.query;
   if (!username) return res.status(400).json({ message: 'Thiếu username' });
-  let requests = loadFriendRequests();
+  let requests = loadPartnerRequests();
   // Lấy các yêu cầu pending gửi đến user
   let pending = requests.filter(r => r.to === username && r.status === 'pending');
   // Lấy avatar cho từng người gửi
@@ -276,71 +276,71 @@ app.get('/friend-requests', async (req, res) => {
   res.json({ requests: pending });
 });
 
-// Đồng ý hoặc từ chối kết bạn
-app.post('/friend-request/respond', (req, res) => {
+// Đồng ý hoặc từ chối kết nối
+app.post('/partner-request/respond', (req, res) => {
   const { from, to, accept } = req.body;
   if (!from || !to || typeof accept !== 'boolean') return res.status(400).json({ message: 'Thiếu thông tin' });
-  let requests = loadFriendRequests();
+  let requests = loadPartnerRequests();
   const idx = requests.findIndex(r => r.from === from && r.to === to && r.status === 'pending');
   if (idx === -1) return res.status(404).json({ message: 'Không tìm thấy yêu cầu' });
   requests[idx].status = accept ? 'accepted' : 'rejected';
-  saveFriendRequests(requests);
+  savePartnerRequests(requests);
   // Gửi notification cho người gửi
   let notifs = loadNotifications();
   notifs.push({
     to: from,
-    type: 'friend-response',
+    type: 'partner-response',
     from: to,
     accept,
     createdAt: Date.now()
   });
   saveNotifications(notifs);
-  res.json({ message: accept ? 'Đã đồng ý kết bạn' : 'Đã từ chối kết bạn' });
+  res.json({ message: accept ? 'Đã đồng ý kết nối' : 'Đã từ chối kết nối' });
 });
 
-// API lấy danh sách bạn bè đã accepted
-app.get('/friends', async (req, res) => {
+// API lấy danh sách kết nối đã accepted
+app.get('/partners', async (req, res) => {
   const { username } = req.query;
   if (!username) return res.status(400).json({ message: 'Thiếu username' });
-  let requests = loadFriendRequests();
-  // Lấy các bạn bè đã accepted (gửi hoặc nhận)
-  let friends = requests.filter(r =>
+  let requests = loadPartnerRequests();
+  // Lấy các kết nối đã accepted (gửi hoặc nhận)
+  let partners = requests.filter(r =>
     (r.from === username || r.to === username) && r.status === 'accepted'
   );
-  // Lấy thông tin bạn bè
+  // Lấy thông tin partner
   const result = await sheets.spreadsheets.values.get({
     spreadsheetId: SHEET_ID,
     range: `${SHEET_NAME}!A:E`,
   });
   const rows = result.data.values || [];
-  const friendList = friends.map(r => {
-    const friendUsername = r.from === username ? r.to : r.from;
-    const row = rows.find(row => row[0] === friendUsername);
+  const partnerList = partners.map(r => {
+    const partnerUsername = r.from === username ? r.to : r.from;
+    const row = rows.find(row => row[0] === partnerUsername);
     let avatar = '';
     if (row) {
-      const avatarPath = path.join(AVATAR_DIR, `${friendUsername}.png`);
+      const avatarPath = path.join(AVATAR_DIR, `${partnerUsername}.png`);
       if (existsSync(avatarPath)) {
-        avatar = `http://${HOST}:${PORT}/avatars/${friendUsername}.png`;
+        avatar = `http://${HOST}:${PORT}/avatars/${partnerUsername}.png`;
       }
     }
     return {
-      username: friendUsername,
+      username: partnerUsername,
       avatar
     };
   });
-  res.json({ friends: friendList });
+  res.json({ partners: partnerList });
 });
 
-// API xóa bạn bè
-app.post('/remove-friend', (req, res) => {
-  const { username, friend } = req.body;
-  if (!username || !friend) return res.status(400).json({ message: 'Thiếu thông tin' });
-  let requests = loadFriendRequests();
+// API xóa kết nối
+app.post('/remove-partner', (req, res) => {
+  const { username, partner } = req.body;
+  if (!username || !partner) return res.status(400).json({ message: 'Thiếu thông tin' });
+  let requests = loadPartnerRequests();
   requests = requests.filter(r => !(
-    ((r.from === username && r.to === friend) || (r.from === friend && r.to === username)) && r.status === 'accepted'
+    ((r.from === username && r.to === partner) || (r.from === partner && r.to === username)) && r.status === 'accepted'
   ));
-  saveFriendRequests(requests);
-  res.json({ message: 'Đã xóa bạn bè' });
+  savePartnerRequests(requests);
+  res.json({ message: 'Đã xóa kết nối' });
 });
 
 const NOTIFICATIONS_PATH = path.join(__dirname, 'notifications.json');

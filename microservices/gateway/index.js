@@ -6,7 +6,7 @@ const app = express();
 // Proxy cho user-service
 app.use([
   '/register', '/login', '/reset-password', '/get-profile', '/update-profile', '/upload-avatar',
-  '/friend-request', '/friend-requests', '/friend-request/respond', '/friends', '/remove-friend', '/user', '/avatars', '/notifications'
+  '/partner-request', '/partner-requests', '/partner-request/respond', '/partners', '/remove-partner', '/user', '/avatars', '/notifications'
 ],
   createProxyMiddleware({ target: 'http://user-service:4001', changeOrigin: true })
 );

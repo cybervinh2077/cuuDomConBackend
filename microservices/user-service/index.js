@@ -14,7 +14,7 @@ const __dirname = path.dirname(__filename);
 // Đường dẫn các file và thư mục dữ liệu
 const AVATAR_DIR = path.join(__dirname, 'avatars');
 const DATA_DIR = path.join(__dirname, 'data');
-const FRIEND_REQUESTS_PATH = path.join(DATA_DIR, 'friend_requests.json');
+const PARTNER_REQUESTS_PATH = path.join(DATA_DIR, 'partner_requests.json');
 const CREDENTIALS_PATH = path.join(DATA_DIR, 'credentials.json');
 const USERS_EXTRA_PATH = path.join(DATA_DIR, 'users_extra.json');
 const NOTIFICATIONS_PATH = path.join(DATA_DIR, 'notifications.json');
@@ -34,11 +34,11 @@ const upload = multer({ storage });
 function loadUsersExtra() {
   try { return JSON.parse(readFileSync(USERS_EXTRA_PATH, 'utf8')); } catch { return {}; }
 }
-function loadFriendRequests() {
-  try { return JSON.parse(readFileSync(FRIEND_REQUESTS_PATH, 'utf8')); } catch { return []; }
+function loadPartnerRequests() {
+  try { return JSON.parse(readFileSync(PARTNER_REQUESTS_PATH, 'utf8')); } catch { return []; }
 }
-function saveFriendRequests(requests) {
-  writeFileSync(FRIEND_REQUESTS_PATH, JSON.stringify(requests, null, 2), 'utf8');
+function savePartnerRequests(requests) {
+  writeFileSync(PARTNER_REQUESTS_PATH, JSON.stringify(requests, null, 2), 'utf8');
 }
 function loadNotifications() {
   try { return JSON.parse(readFileSync(NOTIFICATIONS_PATH, 'utf8')); } catch { return []; }
@@ -190,22 +190,22 @@ app.post('/update-profile', async (req, res) => {
     res.status(500).json({ message: 'Lỗi cập nhật profile', error: err.message });
   }
 });
-// Friend request
-app.post('/friend-request', (req, res) => {
+// Partner request
+app.post('/partner-request', (req, res) => {
   const { from, to } = req.body;
   if (!from || !to) return res.status(400).json({ message: 'Thiếu thông tin' });
-  let requests = loadFriendRequests();
+  let requests = loadPartnerRequests();
   if (requests.some(r => r.from === from && r.to === to && r.status === 'pending')) {
     return res.json({ message: 'Đã gửi yêu cầu trước đó' });
   }
   requests.push({ from, to, status: 'pending', createdAt: Date.now() });
-  saveFriendRequests(requests);
-  res.json({ message: 'Đã gửi yêu cầu kết bạn' });
+  savePartnerRequests(requests);
+  res.json({ message: 'Đã gửi yêu cầu kết nối' });
 });
-app.get('/friend-requests', async (req, res) => {
+app.get('/partner-requests', async (req, res) => {
   const { username } = req.query;
   if (!username) return res.status(400).json({ message: 'Thiếu username' });
-  let requests = loadFriendRequests();
+  let requests = loadPartnerRequests();
   let pending = requests.filter(r => r.to === username && r.status === 'pending');
   const result = await sheets.spreadsheets.values.get({
     spreadsheetId: SHEET_ID,
@@ -225,30 +225,30 @@ app.get('/friend-requests', async (req, res) => {
   });
   res.json({ requests: pending });
 });
-app.post('/friend-request/respond', (req, res) => {
+app.post('/partner-request/respond', (req, res) => {
   const { from, to, accept } = req.body;
   if (!from || !to || typeof accept !== 'boolean') return res.status(400).json({ message: 'Thiếu thông tin' });
-  let requests = loadFriendRequests();
+  let requests = loadPartnerRequests();
   const idx = requests.findIndex(r => r.from === from && r.to === to && r.status === 'pending');
   if (idx === -1) return res.status(404).json({ message: 'Không tìm thấy yêu cầu' });
   requests[idx].status = accept ? 'accepted' : 'rejected';
-  saveFriendRequests(requests);
+  savePartnerRequests(requests);
   let notifs = loadNotifications();
   notifs.push({
     to: from,
-    type: 'friend-response',
+    type: 'partner-response',
     from: to,
     accept,
     createdAt: Date.now()
   });
   saveNotifications(notifs);
-  res.json({ message: accept ? 'Đã đồng ý kết bạn' : 'Đã từ chối kết bạn' });
+  res.json({ message: accept ? 'Đã đồng ý kết nối' : 'Đã từ chối kết nối' });
 });
-app.get('/friends', async (req, res) => {
+app.get('/partners', async (req, res) => {
   const { username } = req.query;
   if (!username) return res.status(400).json({ message: 'Thiếu username' });
-  let requests = loadFriendRequests();
-  let friends = requests.filter(r =>
+  let requests = loadPartnerRequests();
+  let partners = requests.filter(r =>
     (r.from === username || r.to === username) && r.status === 'accepted'
   );
   const result = await sheets.spreadsheets.values.get({
@@ -256,29 +256,29 @@ app.get('/friends', async (req, res) => {
     range: `${SHEET_NAME}!A:E`,
   });
   const rows = result.data.values || [];
-  const friendList = friends.map(r => {
-    const friendUsername = r.from === username ? r.to : r.from;
-    const row = rows.find(row => row[0] === friendUsername);
+  const partnerList = partners.map(r => {
+    const partnerUsername = r.from === username ? r.to : r.from;
+    const row = rows.find(row => row[0] === partnerUsername);
     let avatar = '';
     if (row) {
-      const avatarPath = path.join(AVATAR_DIR, `${friendUsername}.png`);
+      const avatarPath = path.join(AVATAR_DIR, `${partnerUsername}.png`);
       if (existsSync(avatarPath)) {
-        avatar = `/avatars/${friendUsername}.png`;
+        avatar = `/avatars/${partnerUsername}.png`;
       }
     }
-    return { username: friendUsername, avatar };
+    return { username: partnerUsername, avatar };
   });
-  res.json({ friends: friendList });
+  res.json({ partners: partnerList });
 });
-app.post('/remove-friend', (req, res) => {
-  const { username, friend } = req.body;
-  if (!username || !friend) return res.status(400).json({ message: 'Thiếu thông tin' });
-  let requests = loadFriendRequests();
+app.post('/remove-partner', (req, res) => {
+  const { username, partner } = req.body;
+  if (!username || !partner) return res.status(400).json({ message: 'Thiếu thông tin' });
+  let requests = loadPartnerRequests();
   requests = requests.filter(r => !(
-    ((r.from === username && r.to === friend) || (r.from === friend && r.to === username)) && r.status === 'accepted'
+    ((r.from === username && r.to === partner) || (r.from === partner && r.to === username)) && r.status === 'accepted'
   ));
-  saveFriendRequests(requests);
-  res.json({ message: 'Đã xóa bạn bè' });
+  savePartnerRequests(requests);
+  res.json({ message: 'Đã xóa kết nối' });
 });
 // Lấy notification cá nhân
 app.get('/notifications', (req, res) => {

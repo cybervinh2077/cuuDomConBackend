@@ -77,7 +77,7 @@ Server sẽ chạy tại: `http://<HOST>:<PORT>`
 - **GET:**  
   - Chọn method GET, nhập URL như trên, nhấn Send.
 - **POST:**  
-  - Chọn method POST, nhập URL (ví dụ: `/register`, `/login`, `/friend-request`, `/messages`, `/posts`...)
+  - Chọn method POST, nhập URL (ví dụ: `/register`, `/login`, `/partner-request`, `/messages`, `/posts`...)
   - Chọn Body > raw > JSON, nhập dữ liệu, ví dụ:
     ```json
     {
@@ -222,7 +222,7 @@ Invoke-RestMethod -Uri "http://localhost:4000/register" -Method POST -ContentTyp
 ## 3. Kết bạn & bạn bè
 
 ### Gửi yêu cầu kết bạn
-- **POST** `/friend-request`
+- **POST** `/partner-request`
 - Body:
   ```json
   { "from": "string", "to": "string" }
@@ -235,7 +235,7 @@ Invoke-RestMethod -Uri "http://localhost:4000/register" -Method POST -ContentTyp
   ```
 
 ### Lấy danh sách yêu cầu kết bạn
-- **GET** `/friend-requests?username=...`
+- **GET** `/partner-requests?username=...`
   - `username`: Tên tài khoản cần xem lời mời
 - Response:
   ```json
@@ -245,7 +245,7 @@ Invoke-RestMethod -Uri "http://localhost:4000/register" -Method POST -ContentTyp
   - `createdAt`: Thời gian gửi (timestamp)
 
 ### Đồng ý/từ chối kết bạn
-- **POST** `/friend-request/respond`
+- **POST** `/partner-request/respond`
 - Body:
   ```json
   { "from": "string", "to": "string", "accept": true/false }
@@ -259,21 +259,21 @@ Invoke-RestMethod -Uri "http://localhost:4000/register" -Method POST -ContentTyp
   ```
 
 ### Lấy danh sách bạn bè
-- **GET** `/friends?username=...`
+- **GET** `/partners?username=...`
   - `username`: Tên tài khoản cần xem danh sách bạn bè
 - Response:
   ```json
-  { "friends": [ ... ] }
+  { "partners": [ ... ] }
   ```
 
 ### Xóa bạn bè
-- **POST** `/remove-friend`
+- **POST** `/remove-partner`
 - Body:
   ```json
-  { "username": "string", "friend": "string" }
+  { "username": "string", "partner": "string" }
   ```
   - `username`: Tên tài khoản
-  - `friend`: Username bạn muốn xóa
+  - `partner`: Username bạn muốn xóa
 - Response:
   ```json
   { "message": "Đã xóa bạn bè" }
@@ -286,9 +286,9 @@ Invoke-RestMethod -Uri "http://localhost:4000/register" -Method POST -ContentTyp
   - `username`: Tên tài khoản cần xem thông báo
 - Response:
   ```json
-  { "notifications": [ { "to": "username", "type": "friend-response", "from": "username", "accept": true, "createdAt": 123456789 } ] }
+  { "notifications": [ { "to": "username", "type": "partner-response", "from": "username", "accept": true, "createdAt": 123456789 } ] }
   ```
-  - `type`: Loại thông báo (ví dụ: `friend-response`)
+  - `type`: Loại thông báo (ví dụ: `partner-response`)
   - `from`: Username người gửi thông báo
   - `accept`: true/false (nếu là phản hồi kết bạn)
   - `createdAt`: Thời gian
@@ -383,3 +383,75 @@ Invoke-RestMethod -Uri "http://localhost:4000/register" -Method POST -ContentTyp
 
 ## License
 MIT .
+
+# Hướng dẫn chạy server backend Node.js trên Orange Pi và truy cập từ xa
+
+## 1. Cài đặt Node.js trên Orange Pi
+
+```sh
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt install -y nodejs
+```
+
+## 2. Copy code lên Orange Pi
+- Clone từ GitHub:
+  ```sh
+  git clone https://github.com/<your-username>/<your-repo>.git
+  cd <your-repo>/user-acc-log-reg
+  ```
+- Hoặc copy trực tiếp thư mục `user-acc-log-reg` sang Orange Pi.
+
+## 3. Cài dependencies và chạy server
+```sh
+cd user-acc-log-reg
+npm install
+node index.js
+```
+- Nếu muốn chạy nền:
+  ```sh
+  npm install -g pm2
+  pm2 start index.js
+  ```
+
+## 4. Mở port trên Orange Pi
+```sh
+sudo ufw allow 4000
+```
+
+## 5. Lấy địa chỉ IP nội bộ của Orange Pi
+```sh
+hostname -I
+```
+
+## 6. Truy cập từ thiết bị khác trong cùng mạng LAN
+- Truy cập: `http://<IP-OrangePi>:4000/`
+
+## 7. Port Forwarding để truy cập từ ngoài mạng
+- Đăng nhập vào router (thường là 192.168.1.1 hoặc 192.168.0.1)
+- Tìm mục **Port Forwarding** (hoặc Virtual Server, NAT...)
+- Thêm rule:
+  - External Port: 4000
+  - Internal IP: <IP-OrangePi>
+  - Internal Port: 4000
+  - Protocol: TCP
+- Lưu cấu hình, lấy IP WAN tại [whatismyip.com](https://whatismyip.com)
+- Truy cập từ ngoài mạng: `http://<WAN-IP>:4000/`
+
+## 8. Test API
+- Dùng Postman hoặc curl:
+  - Đăng ký user:
+    ```sh
+    curl -X POST "http://<IP-OrangePi>:4000/register" -H "Content-Type: application/json" -d '{"username":"testuser","password":"123456"}'
+    ```
+  - Gửi yêu cầu kết nối:
+    ```sh
+    curl -X POST "http://<IP-OrangePi>:4000/partner-request" -H "Content-Type: application/json" -d '{"from":"user1","to":"user2"}'
+    ```
+  - Lấy danh sách kết nối:
+    ```sh
+    curl "http://<IP-OrangePi>:4000/partners?username=user1"
+    ```
+
+## 9. Lưu ý bảo mật
+- Chỉ mở port khi cần thiết, nên dùng xác thực hoặc VPN nếu mở ra Internet.
+- Nên dùng HTTPS nếu có thể.
