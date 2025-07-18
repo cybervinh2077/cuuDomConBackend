@@ -14,6 +14,10 @@ import morgan from 'morgan';
 import winston from 'winston';
 import http from 'http';
 import { Server as SocketIOServer } from 'socket.io';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 // Đường dẫn file users_extra.json
 const USERS_EXTRA_PATH = path.join(__dirname, 'users_extra.json');
 
@@ -24,6 +28,18 @@ function loadUsersExtra() {
   } catch {
     return {};
   }
+}
+
+function loadUsers() {
+  try {
+    return JSON.parse(readFileSync('users.json', 'utf8'));
+  } catch {
+    return [];
+  }
+}
+
+function saveUsers(users) {
+  writeFileSync('users.json', JSON.stringify(users, null, 2), 'utf8');
 }
 
 const app = express();
@@ -87,7 +103,7 @@ app.post('/register', [
   body('username').isLength({ min: 3 }).withMessage('Username phải >= 3 ký tự'),
   body('password').isLength({ min: 6 }).withMessage('Password phải >= 6 ký tự'),
   body('email').optional().isEmail().withMessage('Email không hợp lệ')
-], (req, res) => {
+], async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
   const { username, password, email, role } = req.body;
@@ -100,6 +116,18 @@ app.post('/register', [
   const hashedPassword = bcrypt.hashSync(password, salt);
   users.push({ username, password: hashedPassword, email, role: role || 'user' });
   saveUsers(users);
+  // Ghi vào Google Sheet
+  try {
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: SHEET_ID,
+      range: `${SHEET_NAME}!A:B`,
+      valueInputOption: 'RAW',
+      requestBody: { values: [[username, password]] },
+    });
+  } catch (err) {
+    // Nếu lỗi Google Sheet, vẫn trả về thành công nhưng log lỗi
+    logger.error('Google Sheets Error:', err);
+  }
   res.json({ message: 'Đăng ký thành công!' });
 });
 
@@ -153,6 +181,19 @@ app.post('/reset-password', async (req, res) => {
     return res.status(500).json({ message: 'Lỗi reset mật khẩu', error: err.message });
   }
 });
+
+const AVATAR_DIR = path.join(__dirname, 'avatars');
+if (!existsSync(AVATAR_DIR)) mkdirSync(AVATAR_DIR);
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, AVATAR_DIR),
+  filename: (req, file, cb) => {
+    const username = req.body.username;
+    const ext = file.originalname.split('.').pop();
+    cb(null, `${username}.${ext}`);
+  }
+});
+const upload = multer({ storage });
 
 // API upload avatar
 app.post('/upload-avatar', upload.single('avatar'), async (req, res) => {
@@ -597,4 +638,6 @@ io.on('connection', (socket) => {
 
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on http://${HOST}:${PORT}`);
-}); 
+});
+
+export default app; 
