@@ -3,32 +3,15 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
-
-// Định nghĩa __filename và __dirname NGAY SAU import path và fileURLToPath
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Tạo thư mục lưu avatar nếu chưa có
-const AVATAR_DIR = path.join(__dirname, 'avatars');
-if (!existsSync(AVATAR_DIR)) mkdirSync(AVATAR_DIR);
-
-// Cấu hình multer
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, AVATAR_DIR);
-  },
-  filename: (req, file, cb) => {
-    const username = req.body.username;
-    const ext = file.originalname.split('.').pop();
-    cb(null, `${username}.${ext}`);
-  }
-});
-const upload = multer({ storage });
-
 import { google } from 'googleapis';
 import multer from 'multer';
 import sharp from 'sharp';
 import { readFileSync, existsSync, mkdirSync, writeFileSync } from 'fs';
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
+import { body, validationResult } from 'express-validator';
+import morgan from 'morgan';
+import winston from 'winston';
 import http from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 // Đường dẫn file users_extra.json
@@ -46,9 +29,6 @@ function loadUsersExtra() {
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
-
-const morgan = require('morgan');
-const winston = require('winston');
 
 const logger = winston.createLogger({
   level: 'info',
@@ -81,12 +61,6 @@ const auth = new google.auth.GoogleAuth({
   scopes: ['https://www.googleapis.com/auth/spreadsheets'],
 });
 const sheets = google.sheets({ version: 'v4', auth });
-
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
-const { body, validationResult } = require('express-validator');
-
-const SECRET_KEY = process.env.JWT_SECRET || 'your_secret_key';
 
 function authMiddleware(req, res, next) {
   const token = req.headers.authorization?.split(' ')[1];
