@@ -455,3 +455,17 @@ hostname -I
 ## 9. Lưu ý bảo mật
 - Chỉ mở port khi cần thiết, nên dùng xác thực hoặc VPN nếu mở ra Internet.
 - Nên dùng HTTPS nếu có thể.
+
+## 10. Logging & Health Check
+- Log ứng dụng được ghi vào file app.log và console (Winston, Morgan).
+- Kiểm tra tình trạng service qua endpoint: `/health`
+
+## 11. Testing
+- Chạy unit test:
+  ```sh
+  npm test
+  ```
+- Test các API chính bằng Postman/curl như hướng dẫn ở trên.
+
+## 12. CI/CD
+- Đã tích hợp GitHub Actions tự động test và build khi push code.

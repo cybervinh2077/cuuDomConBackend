@@ -47,6 +47,27 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
+const morgan = require('morgan');
+const winston = require('winston');
+
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.simple()
+  ),
+  transports: [
+    new winston.transports.Console(),
+    new winston.transports.File({ filename: 'app.log' })
+  ]
+});
+
+app.use(morgan('combined', { stream: { write: msg => logger.info(msg.trim()) } }));
+
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', time: new Date() });
+});
+
 // Thông tin Google Sheets
 const SHEET_ID = '1bZ67uc2R9rpYkYE6BhcqjjDbZGE7wOzuhS3RB9eEgCU';
 const SHEET_NAME = 'users';
@@ -61,49 +82,69 @@ const auth = new google.auth.GoogleAuth({
 });
 const sheets = google.sheets({ version: 'v4', auth });
 
-// Đăng ký tài khoản
-app.post('/register', async (req, res) => {
-  const { username, password } = req.body;
-  if (!username || !password) {
-    return res.status(400).json({ message: 'Missing username or password' });
-  }
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const { body, validationResult } = require('express-validator');
+
+const SECRET_KEY = process.env.JWT_SECRET || 'your_secret_key';
+
+function authMiddleware(req, res, next) {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) return res.status(401).json({ message: 'No token' });
   try {
-    await sheets.spreadsheets.values.append({
-      spreadsheetId: SHEET_ID,
-      range: `${SHEET_NAME}!A:B`,
-      valueInputOption: 'RAW',
-      requestBody: {
-        values: [[username, password]],
-      },
-    });
-    return res.json({ message: 'Đăng ký thành công!' });
-  } catch (err) {
-    console.error('Google Sheets Error:', err); // Thêm dòng này để in log chi tiết
-    return res.status(500).json({ message: 'Lỗi ghi vào Google Sheet', error: err.message });
+    req.user = jwt.verify(token, SECRET_KEY);
+    next();
+  } catch {
+    res.status(401).json({ message: 'Invalid token' });
   }
+}
+
+function requireRole(role) {
+  return (req, res, next) => {
+    if (!req.user || req.user.role !== role) {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+    next();
+  };
+}
+
+// Đăng ký
+app.post('/register', [
+  body('username').isLength({ min: 3 }).withMessage('Username phải >= 3 ký tự'),
+  body('password').isLength({ min: 6 }).withMessage('Password phải >= 6 ký tự'),
+  body('email').optional().isEmail().withMessage('Email không hợp lệ')
+], (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+  const { username, password, email, role } = req.body;
+  if (!username || !password) return res.status(400).json({ message: 'Thiếu thông tin' });
+  let users = loadUsers();
+  if (users.find(u => u.username === username)) {
+    return res.status(409).json({ message: 'Username đã tồn tại' });
+  }
+  const salt = bcrypt.genSaltSync(10);
+  const hashedPassword = bcrypt.hashSync(password, salt);
+  users.push({ username, password: hashedPassword, email, role: role || 'user' });
+  saveUsers(users);
+  res.json({ message: 'Đăng ký thành công!' });
 });
 
-// Đăng nhập tài khoản
-app.post('/login', async (req, res) => {
+// Đăng nhập
+app.post('/login', [
+  body('username').notEmpty().withMessage('Thiếu username'),
+  body('password').notEmpty().withMessage('Thiếu password')
+], (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
   const { username, password } = req.body;
-  if (!username || !password) {
-    return res.status(400).json({ message: 'Missing username or password' });
-  }
-  try {
-    const result = await sheets.spreadsheets.values.get({
-      spreadsheetId: SHEET_ID,
-      range: `${SHEET_NAME}!A:B`,
-    });
-    const rows = result.data.values || [];
-    const found = rows.find(row => row[0] === username && row[1] === password);
-    if (found) {
-      return res.json({ message: 'Đăng nhập thành công!' });
-    } else {
-      return res.status(401).json({ message: 'Sai tài khoản hoặc mật khẩu' });
-    }
-  } catch (err) {
-    return res.status(500).json({ message: 'Lỗi đọc Google Sheet', error: err.message });
-  }
+  if (!username || !password) return res.status(400).json({ message: 'Thiếu thông tin' });
+  let users = loadUsers();
+  const user = users.find(u => u.username === username);
+  if (!user) return res.status(401).json({ message: 'Sai tài khoản hoặc mật khẩu' });
+  const isMatch = bcrypt.compareSync(password, user.password);
+  if (!isMatch) return res.status(401).json({ message: 'Sai tài khoản hoặc mật khẩu' });
+  const token = jwt.sign({ username: user.username, role: user.role || 'user' }, SECRET_KEY, { expiresIn: '1d' });
+  res.json({ token });
 });
 
 // Reset mật khẩu (cho phép đặt mật khẩu mới)
@@ -236,7 +277,12 @@ function savePartnerRequests(requests) {
 }
 
 // Gửi yêu cầu kết nối
-app.post('/partner-request', (req, res) => {
+app.post('/partner-request', [
+  body('from').notEmpty(),
+  body('to').notEmpty()
+], authMiddleware, (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
   const { from, to } = req.body;
   if (!from || !to) return res.status(400).json({ message: 'Thiếu thông tin' });
   let requests = loadPartnerRequests();
