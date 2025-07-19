@@ -78,6 +78,8 @@ const auth = new google.auth.GoogleAuth({
 });
 const sheets = google.sheets({ version: 'v4', auth });
 
+const SECRET_KEY = process.env.JWT_SECRET || 'your_secret_key';
+
 function authMiddleware(req, res, next) {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) return res.status(401).json({ message: 'No token' });
@@ -135,18 +137,91 @@ app.post('/register', [
 app.post('/login', [
   body('username').notEmpty().withMessage('Thiếu username'),
   body('password').notEmpty().withMessage('Thiếu password')
-], (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
-  const { username, password } = req.body;
-  if (!username || !password) return res.status(400).json({ message: 'Thiếu thông tin' });
-  let users = loadUsers();
-  const user = users.find(u => u.username === username);
-  if (!user) return res.status(401).json({ message: 'Sai tài khoản hoặc mật khẩu' });
-  const isMatch = bcrypt.compareSync(password, user.password);
-  if (!isMatch) return res.status(401).json({ message: 'Sai tài khoản hoặc mật khẩu' });
-  const token = jwt.sign({ username: user.username, role: user.role || 'user' }, SECRET_KEY, { expiresIn: '1d' });
-  res.json({ token });
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+    const { username, password } = req.body;
+    if (!username || !password) return res.status(400).json({ message: 'Thiếu thông tin' });
+    let users = loadUsers();
+    const user = users.find(u => u.username === username);
+    if (!user) return res.status(401).json({ message: 'Sai tài khoản hoặc mật khẩu' });
+    const isMatch = bcrypt.compareSync(password, user.password);
+    if (!isMatch) return res.status(401).json({ message: 'Sai tài khoản hoặc mật khẩu' });
+    
+    // Tạo token
+    const token = jwt.sign({ username: user.username, role: user.role || 'user' }, SECRET_KEY, { expiresIn: '1d' });
+    
+    // Lấy thông tin chi tiết từ Google Sheets
+    let userInfo = {
+      username: user.username,
+      email: user.email || '',
+      role: user.role || 'user'
+    };
+    
+    try {
+      const result = await sheets.spreadsheets.values.get({
+        spreadsheetId: SHEET_ID,
+        range: `${SHEET_NAME}!A:G`,
+      });
+      const rows = result.data.values || [];
+      const row = rows.find(r => r[0] === username);
+      if (row) {
+        userInfo = {
+          ...userInfo,
+          email: row[2] || user.email || '',
+          phone: row[3] || '',
+          dob: row[4] || '',
+          fullName: row[5] || '',
+          region: row[6] || ''
+        };
+      }
+    } catch (sheetError) {
+      logger.error('Google Sheets Error:', sheetError);
+    }
+    
+    // Kiểm tra avatar
+    const avatarPath = path.join(AVATAR_DIR, `${username}.png`);
+    let avatarUrl = '';
+    if (existsSync(avatarPath)) {
+      avatarUrl = `http://${HOST}:${PORT}/avatars/${username}.png`;
+    }
+    
+    // Lấy dữ liệu extra
+    const usersExtra = loadUsersExtra();
+    const extra = usersExtra[username] || {};
+    
+    // Lấy notifications
+    let notifications = [];
+    try {
+      notifications = loadNotifications().filter(n => n.to === username);
+    } catch {}
+    
+    // Trả về thông tin user đầy đủ
+    res.json({
+      success: true,
+      message: 'Đăng nhập thành công',
+      user: {
+        id: username,
+        username: userInfo.username,
+        email: userInfo.email,
+        phone: userInfo.phone || '',
+        fullName: userInfo.fullName || '',
+        region: userInfo.region || '',
+        role: userInfo.role,
+        avatar: avatarUrl,
+        rating: extra.rating || 0,
+        point: extra.point || 0,
+        posts: extra.posts || [],
+        transactions: extra.transactions || [],
+        notifications: notifications
+      },
+      token: token
+    });
+  } catch (err) {
+    logger.error('Login error:', err);
+    res.status(500).json({ message: 'Internal server error', error: err.message });
+  }
 });
 
 // Reset mật khẩu (cho phép đặt mật khẩu mới)
