@@ -1,0 +1,789 @@
+{
+    "posts": [
+        {
+            "type": "OFFER",
+            "title": "Thiết kế logo #1",
+            "skills": [
+                "Design",
+                "Logo"
+            ],
+            "price": {
+                "min": 105,
+                "max": 155
+            },
+            "description": "Bài viết về chủ đề Thiết kế logo số 1",
+            "proofs": [
+                {
+                    "file": "http://localhost:4000/post_images/proof1.jpg",
+                    "link": "https://github.com/example/proof1.jpg"
+                }
+            ],
+            "author": {
+                "username": "user1"
+            },
+            "createdAt": 1710000000001,
+            "rating": 0,
+            "reactions": "NONE",
+            "id": "1710000000001_abcde1"
+        },
+        {
+            "type": "HIRE",
+            "title": "Lập trình web #2",
+            "skills": [
+                "Coding",
+                "Web"
+            ],
+            "price": {
+                "min": 110,
+                "max": 160
+            },
+            "description": "Bài viết về chủ đề Lập trình web số 2",
+            "proofs": [
+                {
+                    "file": "http://localhost:4000/post_images/proof2.jpg",
+                    "link": "https://github.com/example/proof2.jpg"
+                }
+            ],
+            "author": {
+                "username": "user2"
+            },
+            "createdAt": 1710000000002,
+            "rating": 0,
+            "reactions": "NONE",
+            "id": "1710000000002_abcde2"
+        },
+        {
+            "type": "OFFER",
+            "title": "Dịch thuật #3",
+            "skills": [
+                "Translation",
+                "English"
+            ],
+            "price": {
+                "min": 115,
+                "max": 165
+            },
+            "description": "Bài viết về chủ đề Dịch thuật số 3",
+            "proofs": [
+                {
+                    "file": "http://localhost:4000/post_images/proof3.jpg",
+                    "link": "https://github.com/example/proof3.jpg"
+                }
+            ],
+            "author": {
+                "username": "user3"
+            },
+            "createdAt": 1710000000003,
+            "rating": 0,
+            "reactions": "NONE",
+            "id": "1710000000003_abcde3"
+        },
+        {
+            "type": "HIRE",
+            "title": "Chụp ảnh #4",
+            "skills": [
+                "Photography",
+                "Event"
+            ],
+            "price": {
+                "min": 120,
+                "max": 170
+            },
+            "description": "Bài viết về chủ đề Chụp ảnh số 4",
+            "proofs": [
+                {
+                    "file": "http://localhost:4000/post_images/proof4.jpg",
+                    "link": "https://github.com/example/proof4.jpg"
+                }
+            ],
+            "author": {
+                "username": "user4"
+            },
+            "createdAt": 1710000000004,
+            "rating": 0,
+            "reactions": "NONE",
+            "id": "1710000000004_abcde4"
+        },
+        {
+            "type": "OFFER",
+            "title": "Dạy guitar #5",
+            "skills": [
+                "Music",
+                "Guitar"
+            ],
+            "price": {
+                "min": 125,
+                "max": 175
+            },
+            "description": "Bài viết về chủ đề Dạy guitar số 5",
+            "proofs": [
+                {
+                    "file": "http://localhost:4000/post_images/proof5.jpg",
+                    "link": "https://github.com/example/proof5.jpg"
+                }
+            ],
+            "author": {
+                "username": "user5"
+            },
+            "createdAt": 1710000000005,
+            "rating": 0,
+            "reactions": "NONE",
+            "id": "1710000000005_abcde5"
+        },
+        {
+            "type": "HIRE",
+            "title": "SEO Marketing #6",
+            "skills": [
+                "SEO",
+                "Marketing"
+            ],
+            "price": {
+                "min": 130,
+                "max": 180
+            },
+            "description": "Bài viết về chủ đề SEO Marketing số 6",
+            "proofs": [
+                {
+                    "file": "http://localhost:4000/post_images/proof6.jpg",
+                    "link": "https://github.com/example/proof6.jpg"
+                }
+            ],
+            "author": {
+                "username": "user6"
+            },
+            "createdAt": 1710000000006,
+            "rating": 0,
+            "reactions": "NONE",
+            "id": "1710000000006_abcde6"
+        },
+        {
+            "type": "OFFER",
+            "title": "Viết content #7",
+            "skills": [
+                "Writing",
+                "Content"
+            ],
+            "price": {
+                "min": 135,
+                "max": 185
+            },
+            "description": "Bài viết về chủ đề Viết content số 7",
+            "proofs": [
+                {
+                    "file": "http://localhost:4000/post_images/proof7.jpg",
+                    "link": "https://github.com/example/proof7.jpg"
+                }
+            ],
+            "author": {
+                "username": "user7"
+            },
+            "createdAt": 1710000000007,
+            "rating": 0,
+            "reactions": "NONE",
+            "id": "1710000000007_abcde7"
+        },
+        {
+            "type": "HIRE",
+            "title": "Thiết kế UI/UX #8",
+            "skills": [
+                "Design",
+                "UI/UX"
+            ],
+            "price": {
+                "min": 140,
+                "max": 190
+            },
+            "description": "Bài viết về chủ đề Thiết kế UI/UX số 8",
+            "proofs": [
+                {
+                    "file": "http://localhost:4000/post_images/proof8.jpg",
+                    "link": "https://github.com/example/proof8.jpg"
+                }
+            ],
+            "author": {
+                "username": "user8"
+            },
+            "createdAt": 1710000000008,
+            "rating": 0,
+            "reactions": "NONE",
+            "id": "1710000000008_abcde8"
+        },
+        {
+            "type": "OFFER",
+            "title": "Lập trình mobile #9",
+            "skills": [
+                "Coding",
+                "Mobile"
+            ],
+            "price": {
+                "min": 145,
+                "max": 195
+            },
+            "description": "Bài viết về chủ đề Lập trình mobile số 9",
+            "proofs": [
+                {
+                    "file": "http://localhost:4000/post_images/proof9.jpg",
+                    "link": "https://github.com/example/proof9.jpg"
+                }
+            ],
+            "author": {
+                "username": "user9"
+            },
+            "createdAt": 1710000000009,
+            "rating": 0,
+            "reactions": "NONE",
+            "id": "1710000000009_abcde9"
+        },
+        {
+            "type": "HIRE",
+            "title": "Tư vấn tài chính #10",
+            "skills": [
+                "Finance",
+                "Consulting"
+            ],
+            "price": {
+                "min": 150,
+                "max": 200
+            },
+            "description": "Bài viết về chủ đề Tư vấn tài chính số 10",
+            "proofs": [
+                {
+                    "file": "http://localhost:4000/post_images/proof10.jpg",
+                    "link": "https://github.com/example/proof10.jpg"
+                }
+            ],
+            "author": {
+                "username": "user10"
+            },
+            "createdAt": 1710000000010,
+            "rating": 0,
+            "reactions": "NONE",
+            "id": "1710000000010_abcde10"
+        },
+        {
+            "type": "OFFER",
+            "title": "Thiết kế logo #11",
+            "skills": [
+                "Design",
+                "Logo"
+            ],
+            "price": {
+                "min": 155,
+                "max": 205
+            },
+            "description": "Bài viết về chủ đề Thiết kế logo số 11",
+            "proofs": [
+                {
+                    "file": "http://localhost:4000/post_images/proof11.jpg",
+                    "link": "https://github.com/example/proof11.jpg"
+                }
+            ],
+            "author": {
+                "username": "user11"
+            },
+            "createdAt": 1710000000011,
+            "rating": 0,
+            "reactions": "NONE",
+            "id": "1710000000011_abcde11"
+        },
+        {
+            "type": "HIRE",
+            "title": "Lập trình web #12",
+            "skills": [
+                "Coding",
+                "Web"
+            ],
+            "price": {
+                "min": 160,
+                "max": 210
+            },
+            "description": "Bài viết về chủ đề Lập trình web số 12",
+            "proofs": [
+                {
+                    "file": "http://localhost:4000/post_images/proof12.jpg",
+                    "link": "https://github.com/example/proof12.jpg"
+                }
+            ],
+            "author": {
+                "username": "user12"
+            },
+            "createdAt": 1710000000012,
+            "rating": 0,
+            "reactions": "NONE",
+            "id": "1710000000012_abcde12"
+        },
+        {
+            "type": "OFFER",
+            "title": "Dịch thuật #13",
+            "skills": [
+                "Translation",
+                "English"
+            ],
+            "price": {
+                "min": 165,
+                "max": 215
+            },
+            "description": "Bài viết về chủ đề Dịch thuật số 13",
+            "proofs": [
+                {
+                    "file": "http://localhost:4000/post_images/proof13.jpg",
+                    "link": "https://github.com/example/proof13.jpg"
+                }
+            ],
+            "author": {
+                "username": "user13"
+            },
+            "createdAt": 1710000000013,
+            "rating": 0,
+            "reactions": "NONE",
+            "id": "1710000000013_abcde13"
+        },
+        {
+            "type": "HIRE",
+            "title": "Chụp ảnh #14",
+            "skills": [
+                "Photography",
+                "Event"
+            ],
+            "price": {
+                "min": 170,
+                "max": 220
+            },
+            "description": "Bài viết về chủ đề Chụp ảnh số 14",
+            "proofs": [
+                {
+                    "file": "http://localhost:4000/post_images/proof14.jpg",
+                    "link": "https://github.com/example/proof14.jpg"
+                }
+            ],
+            "author": {
+                "username": "user14"
+            },
+            "createdAt": 1710000000014,
+            "rating": 0,
+            "reactions": "NONE",
+            "id": "1710000000014_abcde14"
+        },
+        {
+            "type": "OFFER",
+            "title": "Dạy guitar #15",
+            "skills": [
+                "Music",
+                "Guitar"
+            ],
+            "price": {
+                "min": 175,
+                "max": 225
+            },
+            "description": "Bài viết về chủ đề Dạy guitar số 15",
+            "proofs": [
+                {
+                    "file": "http://localhost:4000/post_images/proof15.jpg",
+                    "link": "https://github.com/example/proof15.jpg"
+                }
+            ],
+            "author": {
+                "username": "user15"
+            },
+            "createdAt": 1710000000015,
+            "rating": 0,
+            "reactions": "NONE",
+            "id": "1710000000015_abcde15"
+        },
+        {
+            "type": "HIRE",
+            "title": "SEO Marketing #16",
+            "skills": [
+                "SEO",
+                "Marketing"
+            ],
+            "price": {
+                "min": 180,
+                "max": 230
+            },
+            "description": "Bài viết về chủ đề SEO Marketing số 16",
+            "proofs": [
+                {
+                    "file": "http://localhost:4000/post_images/proof16.jpg",
+                    "link": "https://github.com/example/proof16.jpg"
+                }
+            ],
+            "author": {
+                "username": "user16"
+            },
+            "createdAt": 1710000000016,
+            "rating": 0,
+            "reactions": "NONE",
+            "id": "1710000000016_abcde16"
+        },
+        {
+            "type": "OFFER",
+            "title": "Viết content #17",
+            "skills": [
+                "Writing",
+                "Content"
+            ],
+            "price": {
+                "min": 185,
+                "max": 235
+            },
+            "description": "Bài viết về chủ đề Viết content số 17",
+            "proofs": [
+                {
+                    "file": "http://localhost:4000/post_images/proof17.jpg",
+                    "link": "https://github.com/example/proof17.jpg"
+                }
+            ],
+            "author": {
+                "username": "user17"
+            },
+            "createdAt": 1710000000017,
+            "rating": 0,
+            "reactions": "NONE",
+            "id": "1710000000017_abcde17"
+        },
+        {
+            "type": "HIRE",
+            "title": "Thiết kế UI/UX #18",
+            "skills": [
+                "Design",
+                "UI/UX"
+            ],
+            "price": {
+                "min": 190,
+                "max": 240
+            },
+            "description": "Bài viết về chủ đề Thiết kế UI/UX số 18",
+            "proofs": [
+                {
+                    "file": "http://localhost:4000/post_images/proof18.jpg",
+                    "link": "https://github.com/example/proof18.jpg"
+                }
+            ],
+            "author": {
+                "username": "user18"
+            },
+            "createdAt": 1710000000018,
+            "rating": 0,
+            "reactions": "NONE",
+            "id": "1710000000018_abcde18"
+        },
+        {
+            "type": "OFFER",
+            "title": "Lập trình mobile #19",
+            "skills": [
+                "Coding",
+                "Mobile"
+            ],
+            "price": {
+                "min": 195,
+                "max": 245
+            },
+            "description": "Bài viết về chủ đề Lập trình mobile số 19",
+            "proofs": [
+                {
+                    "file": "http://localhost:4000/post_images/proof19.jpg",
+                    "link": "https://github.com/example/proof19.jpg"
+                }
+            ],
+            "author": {
+                "username": "user19"
+            },
+            "createdAt": 1710000000019,
+            "rating": 0,
+            "reactions": "NONE",
+            "id": "1710000000019_abcde19"
+        },
+        {
+            "type": "HIRE",
+            "title": "Tư vấn tài chính #20",
+            "skills": [
+                "Finance",
+                "Consulting"
+            ],
+            "price": {
+                "min": 200,
+                "max": 250
+            },
+            "description": "Bài viết về chủ đề Tư vấn tài chính số 20",
+            "proofs": [
+                {
+                    "file": "http://localhost:4000/post_images/proof20.jpg",
+                    "link": "https://github.com/example/proof20.jpg"
+                }
+            ],
+            "author": {
+                "username": "user20"
+            },
+            "createdAt": 1710000000020,
+            "rating": 0,
+            "reactions": "NONE",
+            "id": "1710000000020_abcde20"
+        }
+    ],
+    "users": [
+        {
+          "username": "ldanh270",
+          "password": "$2a$10$fRNAx2p34wpIskaV86RLLuu20/mYnqq0Ji3oW0xZibx33OHs86fC6",
+          "role": "user"
+        },
+        {
+          "username": "lda123",
+          "password": "$2a$10$FWLuunwIFoTRActzqAwOC.SwFKehpKRBKtHwbbC6Pd.iXjig0Jy3u",
+          "email": "ducanhle.dn@gmail.com",
+          "role": "user"
+        },
+        {
+          "username": "user19",
+          "password": "$2a$10$K6cZmXndPq1dx/AVjQLJwOTjX9aQZg2y1Z6rBFTwRrOd59h8n/ONy",
+          "email": "user19@example.com",
+          "role": "user"
+        },
+        {
+          "username": "user20",
+          "password": "$2a$10$Sx9PpH1RIbE/7rZwSnDnTu1.3cZc7QUJnyGxYqhvjlqX41wQpJ1N2",
+          "email": "user19@example.com",
+          "role": "user"
+        }
+    ],
+    "messages": [
+        {
+            "from": "bruisevinh2077",
+            "to": "Vinh3",
+            "text": "hi",
+            "createdAt": 1752068467092
+          },
+          {
+            "from": "Vinh3",
+            "to": "bruisevinh2077",
+            "text": "ducanh dep trai nho?",
+            "createdAt": 1752068503724
+          },
+          {
+            "from": "bruisevinh2077",
+            "to": "Vinh3",
+            "text": "uh thiệt:)))",
+            "createdAt": 1752068514197
+          },
+          {
+            "from": "bruisevinh2077",
+            "to": "Vinh3",
+            "text": "hallo",
+            "createdAt": 1752069155328
+          },
+          {
+            "from": "Vinh3",
+            "to": "bruisevinh2077",
+            "text": "test123",
+            "createdAt": 1752069172058
+          },
+          {
+            "from": "bruisevinh2077",
+            "to": "Vinh3",
+            "image": "http://192.168.1.36:3001/chat_images/unknown_1752069316185.jpg",
+            "createdAt": 1752069316213
+          },
+          {
+            "from": "bruisevinh2077",
+            "to": "Vinh3",
+            "image": "http://192.168.1.36:3001/chat_images/unknown_1752069427985.jpg",
+            "createdAt": 1752069427997
+          },
+          {
+            "from": "bruisevinh2077",
+            "to": "Vinh3",
+            "image": "http://192.168.1.36:3001/chat_images/unknown_1752069453001.jpg",
+            "createdAt": 1752069453012
+          },
+          {
+            "from": "bruisevinh2077",
+            "to": "Vinh3",
+            "image": "http://192.168.1.36:3001/chat_images/unknown_1752069557436.jpg",
+            "createdAt": 1752069557455
+          },
+          {
+            "from": "bruisevinh2077",
+            "to": "Vinh3",
+            "image": "http://192.168.1.36:3001/chat_images/unknown_1752069638299.png",
+            "createdAt": 1752069638308
+          },
+          {
+            "from": "bruisevinh2077",
+            "to": "Vinh3",
+            "image": "http://192.168.1.36:3001/chat_images/unknown_1752069975947.jpg",
+            "createdAt": 1752069975972
+          },
+          {
+            "from": "bruisevinh2077",
+            "to": "Vinh3",
+            "text": "hi",
+            "createdAt": 1752070029846
+          },
+          {
+            "from": "bruisevinh2077",
+            "to": "Vinh3",
+            "image": "http://192.168.1.36:3001/chat_images/unknown_1752070035464.jpg",
+            "createdAt": 1752070035478
+          },
+          {
+            "from": "bruisevinh2077",
+            "to": "Vinh3",
+            "text": "hi",
+            "createdAt": 1752070085021
+          },
+          {
+            "from": "bruisevinh2077",
+            "to": "Vinh3",
+            "image": "http://192.168.1.36:3001/chat_images/unknown_1752070101434.jpg",
+            "createdAt": 1752070101447
+          },
+          {
+            "from": "bruisevinh2077",
+            "to": "Vinh3",
+            "image": "http://192.168.1.36:3001/chat_images/unknown_1752070140021.jpg",
+            "createdAt": 1752070140035
+          },
+          {
+            "from": "bruisevinh2077",
+            "to": "Vinh3",
+            "text": "chào em anh là elon musk nay anh về việt nam ra mắt nhà máy tét là nhưng không có tiền gọi taxi nên cho anh mượn 15 đô với",
+            "createdAt": 1752070181711
+          },
+          {
+            "from": "bruisevinh2077",
+            "to": "Vinh3",
+            "text": "em không tin thì anh gọi Travis Scott ra làm chứng cho em",
+            "createdAt": 1752070206812
+          },
+          {
+            "from": "bruisevinh2077",
+            "to": "Vinh3",
+            "text": "fin fin fin fin",
+            "createdAt": 1752070213367
+          },
+          {
+            "from": "bruisevinh2077",
+            "to": "Vinh3",
+            "text": "test",
+            "createdAt": 1752070528232
+          },
+          {
+            "from": "bruisevinh2077",
+            "to": "Vinh3",
+            "text": "123",
+            "createdAt": 1752070531507
+          },
+          {
+            "from": "Vinh3",
+            "to": "bruisevinh2077",
+            "text": "reply test 234",
+            "createdAt": 1752070542403
+          },
+          {
+            "from": "bruisevinh2077",
+            "to": "Vinh3",
+            "text": "test",
+            "createdAt": 1752123108985
+          },
+          {
+            "from": "Vinh3",
+            "to": "bruisevinh2077",
+            "text": "alo",
+            "createdAt": 1752459192635
+          },
+          {
+            "from": "bruisevinh2077",
+            "to": "Vinh3",
+            "text": "alooo",
+            "createdAt": 1752459196032
+          },
+          {
+            "from": "bruisevinh2077",
+            "to": "Vinh3",
+            "image": "http://192.168.2.65:4000/chat_images/unknown_1752459426199.jpg",
+            "createdAt": 1752459426212
+          },
+          {
+            "from": "bruisevinh2077",
+            "to": "Vinh3",
+            "text": "test",
+            "createdAt": 1752459539356
+          }
+        
+    ],
+    "notifications": [
+        {
+            "to": "bruisevinh2077",
+            "type": "partner-response",
+            "from": "Vinh3",
+            "accept": true,
+            "createdAt": 1752066708720
+          },
+          {
+            "to": "bruisevinh2077",
+            "type": "partner-response",
+            "from": "Vinh3",
+            "accept": true,
+            "createdAt": 1752067184548
+          },
+          {
+            "to": "vinh7",
+            "type": "partner-response",
+            "from": "Vinh3",
+            "accept": true,
+            "createdAt": 1752067446032
+          },
+          {
+            "to": "bruisevinh2077",
+            "type": "partner-response",
+            "from": "Vinh3",
+            "accept": true,
+            "createdAt": 1752068074854
+          }
+        ],
+    "partners-requests": [
+            {
+                "from": "vinh7",
+                "to": "cybervinh2077",
+                "status": "pending",
+                "createdAt": 1752065519227
+              },
+              {
+                "from": "bruisevinh2077",
+                "to": "vinh7",
+                "status": "rejected",
+                "createdAt": 1752065584339
+              },
+              {
+                "from": "vinh7",
+                "to": "bruise",
+                "status": "rejected",
+                "createdAt": 1752065843606
+              },
+              {
+                "from": "bruisevinh2077",
+                "to": "bruise",
+                "status": "rejected",
+                "createdAt": 1752065976180
+              },
+              {
+                "from": "bruisevinh2077",
+                "to": "vinh3",
+                "status": "pending",
+                "createdAt": 1752066679661
+              },
+              {
+                "from": "bruisevinh2077",
+                "to": "Vinh3",
+                "status": "accepted",
+                "createdAt": 1752068064506
+              },
+              {
+                "from": "user1",
+                "to": "user2",
+                "status": "pending",
+                "createdAt": 1752798746834
+              }
+    ]
+    
+}

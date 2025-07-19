@@ -385,20 +385,81 @@ app.post('/partner-request', [
   res.json({ message: 'Đã gửi yêu cầu kết nối' });
 });
 
-// Lấy danh sách yêu cầu kết nối gửi đến user
-app.get('/partner-requests', async (req, res) => {
-  const { username } = req.query;
-  if (!username) return res.status(400).json({ message: 'Thiếu username' });
+// Apply vào post - Gửi yêu cầu kết nối với thông tin post
+app.post('/partner-requests', [
+  body('from').notEmpty(),
+  body('to').notEmpty(),
+  body('postId').notEmpty(),
+  body('message').optional()
+], authMiddleware, (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+  const { from, to, postId, message } = req.body;
+  if (!from || !to || !postId) return res.status(400).json({ message: 'Thiếu thông tin' });
+  
   let requests = loadPartnerRequests();
-  // Lấy các yêu cầu pending gửi đến user
-  let pending = requests.filter(r => r.to === username && r.status === 'pending');
-  // Lấy avatar cho từng người gửi
+  // Không gửi trùng
+  if (requests.some(r => r.from === from && r.to === to && r.status === 'pending')) {
+    return res.json({ message: 'Đã gửi yêu cầu trước đó' });
+  }
+  
+  // Tạo request với thông tin post
+  const request = {
+    from,
+    to,
+    postId,
+    message: message || '',
+    status: 'pending',
+    createdAt: Date.now()
+  };
+  
+  requests.push(request);
+  savePartnerRequests(requests);
+  
+  // Tạo notification cho người nhận
+  let notifs = loadNotifications();
+  notifs.push({
+    to: to,
+    type: 'partner-request',
+    from: from,
+    postId: postId,
+    message: message || '',
+    createdAt: Date.now()
+  });
+  saveNotifications(notifs);
+  
+  res.json({ 
+    message: 'Đã gửi yêu cầu kết nối',
+    request: request
+  });
+});
+
+// Lấy danh sách yêu cầu kết nối gửi đến user (cho notification)
+app.get('/partner-requests', async (req, res) => {
+  const { username, status } = req.query;
+  if (!username) return res.status(400).json({ message: 'Thiếu username' });
+  
+  let requests = loadPartnerRequests();
+  
+  // Lọc theo status nếu có
+  if (status) {
+    requests = requests.filter(r => r.status === status);
+  }
+  
+  // Lấy các yêu cầu gửi đến user
+  let userRequests = requests.filter(r => r.to === username);
+  
+  // Lấy avatar và thông tin post cho từng yêu cầu
   const result = await sheets.spreadsheets.values.get({
     spreadsheetId: SHEET_ID,
     range: `${SHEET_NAME}!A:E`,
   });
   const rows = result.data.values || [];
-  pending = pending.map(r => {
+  
+  // Load posts để lấy thông tin post
+  const posts = loadPosts();
+  
+  userRequests = userRequests.map(r => {
     const row = rows.find(row => row[0] === r.from);
     let avatar = '';
     if (row) {
@@ -407,9 +468,72 @@ app.get('/partner-requests', async (req, res) => {
         avatar = `http://${HOST}:${PORT}/avatars/${r.from}.png`;
       }
     }
-    return { ...r, avatar };
+    
+    // Lấy thông tin post nếu có postId
+    let postInfo = null;
+    if (r.postId) {
+      postInfo = posts.find(p => p.id === r.postId);
+    }
+    
+    return { 
+      ...r, 
+      avatar,
+      post: postInfo
+    };
   });
-  res.json({ requests: pending });
+  
+  res.json({ 
+    requests: userRequests,
+    total: userRequests.length,
+    pending: userRequests.filter(r => r.status === 'pending').length
+  });
+});
+
+// Lấy danh sách yêu cầu đã gửi (để user xem trạng thái)
+app.get('/partner-requests/sent', async (req, res) => {
+  const { username } = req.query;
+  if (!username) return res.status(400).json({ message: 'Thiếu username' });
+  
+  let requests = loadPartnerRequests();
+  let sentRequests = requests.filter(r => r.from === username);
+  
+  // Lấy avatar cho từng người nhận
+  const result = await sheets.spreadsheets.values.get({
+    spreadsheetId: SHEET_ID,
+    range: `${SHEET_NAME}!A:E`,
+  });
+  const rows = result.data.values || [];
+  
+  // Load posts để lấy thông tin post
+  const posts = loadPosts();
+  
+  sentRequests = sentRequests.map(r => {
+    const row = rows.find(row => row[0] === r.to);
+    let avatar = '';
+    if (row) {
+      const avatarPath = path.join(AVATAR_DIR, `${r.to}.png`);
+      if (existsSync(avatarPath)) {
+        avatar = `http://${HOST}:${PORT}/avatars/${r.to}.png`;
+      }
+    }
+    
+    // Lấy thông tin post nếu có postId
+    let postInfo = null;
+    if (r.postId) {
+      postInfo = posts.find(p => p.id === r.postId);
+    }
+    
+    return { 
+      ...r, 
+      avatar,
+      post: postInfo
+    };
+  });
+  
+  res.json({ 
+    requests: sentRequests,
+    total: sentRequests.length
+  });
 });
 
 // Đồng ý hoặc từ chối kết nối
@@ -636,6 +760,18 @@ app.post('/posts', (req, res) => {
   if (!post || !post.title || !post.author) {
     return res.status(400).json({ message: 'Thiếu thông tin bài đăng' });
   }
+  // Xử lý proofs: nếu là mảng tên file thì chuyển sang mảng object {file, link}
+  if (Array.isArray(post.proofs)) {
+    post.proofs = post.proofs.map(p => {
+      if (typeof p === 'string') {
+        return {
+          file: `http://localhost:4000/post_images/${p}`,
+          link: `https://github.com/example/${p}`
+        };
+      }
+      return p;
+    });
+  }
   // Gán id, createdAt nếu chưa có
   post.id = post.id || `${Date.now()}_${Math.random().toString(36).slice(2,8)}`;
   post.createdAt = post.createdAt || Date.now();
@@ -648,7 +784,42 @@ app.post('/posts', (req, res) => {
 // API lấy danh sách bài đăng
 app.get('/posts', (req, res) => {
   const posts = loadPosts();
-  res.json({ posts });
+  // Đảm bảo proofs luôn là mảng object {file, link}
+  const postsOut = posts.map(post => ({
+    ...post,
+    proofs: Array.isArray(post.proofs) ? post.proofs.map(p => {
+      if (typeof p === 'string') {
+        return {
+          file: `http://localhost:4000/post_images/${p}`,
+          link: `https://github.com/example/${p}`
+        };
+      }
+      return p;
+    }) : []
+  }));
+  res.json({ posts: postsOut });
+});
+
+// API lấy chi tiết bài đăng theo id
+app.get('/posts/:id', (req, res) => {
+  const { id } = req.params;
+  const posts = loadPosts();
+  const post = posts.find(p => p.id === id);
+  if (!post) return res.status(404).json({ message: 'Không tìm thấy bài đăng' });
+  // Đảm bảo proofs luôn là mảng object {file, link}
+  const postOut = {
+    ...post,
+    proofs: Array.isArray(post.proofs) ? post.proofs.map(p => {
+      if (typeof p === 'string') {
+        return {
+          file: `http://localhost:4000/post_images/${p}`,
+          link: `https://github.com/example/${p}`
+        };
+      }
+      return p;
+    }) : []
+  };
+  res.json({ post: postOut });
 });
 
 // API xóa bài đăng
